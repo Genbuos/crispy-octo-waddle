@@ -18,9 +18,9 @@ public class Detail {
         this.message = message;
         this.data = data;
     }
-    public Detail( String message, Object data, int code) {
+    public Detail( int code, String message) {
         this.message = message;
-        this.data = data;
+
         this.code = code;
     }
 

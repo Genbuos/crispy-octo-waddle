@@ -1,5 +1,7 @@
 package com.antisocials.jordy.service;
 
+import com.antisocials.jordy.exceptions.CategoryIdNotFoundException;
+import com.antisocials.jordy.exceptions.NoContentException;
 import com.antisocials.jordy.model.ProductCategory;
 import com.antisocials.jordy.repositories.ProductCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,25 +17,38 @@ public class ProductCategoryService {
     }
 
     public Iterable<ProductCategory> getAllCategories(){
+
+        if(productCategoryRepository.findAll().size() == 0){
+            throw new NoContentException("There are no products or categories created!");
+        }
+
         return productCategoryRepository.findAll();
     }
 
     public ProductCategory getProductCategoryById(Long id){
-        return productCategoryRepository.findById(id).get();
+        var categoryOptional = productCategoryRepository.findById(id);
+        if(categoryOptional.isEmpty()){
+            throw new CategoryIdNotFoundException("Category ID Not Found");
+        }
+        return categoryOptional.get();
     }
 
     public ProductCategory updateProductCategory(ProductCategory updatedCategory, Long categoryId){
         ProductCategory ogCategory = productCategoryRepository.findById(categoryId).orElseThrow(() -> {
-            return  new RuntimeException("Id not found");
+            return  new CategoryIdNotFoundException("Category ID Not Found");
         });
 
         ogCategory.setCategoryName(updatedCategory.getCategoryName());
-        ogCategory.setProductSet(updatedCategory.getProductSet());
+
 
         return productCategoryRepository.save(ogCategory);
     }
 
     public void deleteCategory(Long id){
+        if(!productCategoryRepository.existsById(id)){
+            throw new CategoryIdNotFoundException("Category ID Not Found");
+        }
+
         productCategoryRepository.deleteById(id);
     }
 
